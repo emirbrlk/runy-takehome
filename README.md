@@ -9,6 +9,35 @@ A small NestJS project showing how I'd architect the relationship between our
 
 ---
 
+## Design decisions & trade-offs (read this first)
+
+This is a design challenge, so here is the reasoning behind the three choices a
+reviewer might question — each was a conscious trade-off, not a default:
+
+1. **Event-driven decoupling over direct calls.** Domains emit one generic event
+   and never reference a platform. This keeps the dependency arrow pointing one
+   way (domains → sync → providers). The cost is indirection; the payoff is that
+   a domain can't break an integration and vice-versa. *If the team preferred
+   explicitness, this collapses to a direct `SyncService.dispatch()` call with
+   no behavioural change.*
+
+2. **Auto-discovery of providers over a manual registry.** Providers self-register
+   via a decorator, so adding a platform touches exactly one file. I chose this
+   to make the "N+M, not N×M" claim literally true. *The trade-off is a little
+   magic; if a team values an explicit, greppable list, swapping to a hand-maintained
+   array is a two-line change and everything downstream is untouched.*
+
+3. **A canonical model over passing raw entities.** Providers depend on a stable
+   `CanonicalResource`, not on internal domain shapes. This is the anti-corruption
+   layer — it's what lets internal models and external platforms evolve
+   independently. For a project this small it's mild overhead; at real scale it's
+   the difference between one mapper changing and every integration changing.
+
+Everything else (validation, tests, the capabilities endpoint) is deliberately
+thin. The goal was to demonstrate the *architecture*, not gold-plate a small app.
+
+---
+
 ## The problem in one line
 
 Every internal domain may need to sync with several external platforms, and
