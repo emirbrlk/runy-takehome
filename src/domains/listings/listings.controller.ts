@@ -9,7 +9,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ListingsService } from './listings.service';
-import type { CreateListingDto, UpdateListingDto } from './listing.entity';
+import { CreateListingDto, UpdateListingDto } from './listing.entity';
 
 /**
  * Thin HTTP surface so a reviewer can trigger the sync flow with curl.
